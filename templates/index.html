@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+  <link rel="stylesheet" href="../static/css/index-template.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
+  <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+  <script src="//d3js.org/d3.v3.min.js"></script>
+  <script src="../static/js/draw.js"></script>
+
+</head>
+
+<body>
+
+<div class="container">
+  <h2>Yearly Mininum and Maximum stock prices</h2>
+  <p>Shown the yearly price for each</p>
+
+  <div class="dropdown">
+    <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" id = 'button'>Choose one Stock
+    <span class="caret"></span></button>
+    <ul class="dropdown-menu" id = "items">
+    </ul>
+  </div>
+  <div>
+    <ul id = 'chart'>
+    </ul>
+  </div>
+  <footer id = 'footer'> </footer>
+</div>
+
+<script>
+
+  $(function(){
+    $.get('static/data/symbols.csv', function(data){
+      
+      var symbols = data.split(',');
+      
+      d3.select("#items").selectAll('li')
+        .data(symbols)
+        .enter()
+        .append('li')
+        .text(function(d){return d;})
+        .on('click', update);
+    });
+  });
+
+  // var symbols = ['AAPL', 'YHOO', 'GOOG', 'MSFT', 'AMZN', 'TWTR', 'FB', 'LNKD', 'TSLA', 'QCOM'];
+
+
+  draw('YHOO');
+
+  function update(d) {
+    d3.select('#button').text(d);
+    d3.select('#button').append('span').attr('class', "caret");
+    draw(d);
+  }
+</script>
+
+</body>
+</html>

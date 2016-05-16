@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="http://twitter.github.io/typeahead.js/css/examples.css">
+  <link rel="stylesheet" href="../static/css/index-template.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
+  <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+  <script src="//d3js.org/d3.v3.min.js"></script>
+  <script type='text/javascript' src="http://twitter.github.io/typeahead.js/releases/latest/typeahead.bundle.js"></script>
+  <script src="../static/js/draw.js"></script>
+  <script src="../static/js/the-basis.js"></script>
+
+</head>
+
+<body>
+
+
+<div class="container">
+  <h2>Yearly Mininum and Maximum stock prices</h2>
+  <p>Shown the yearly price for each</p>
+
+  <div id="the-basics">
+    <form>
+      <input class="typeahead" name = 'inputSymbol' id = 'inputSymbol' type="text" placeholder="Stock symbols">
+      <!--button class="btn btn-primary dropdown-toggle" type="button" id = 'button'> Go </button-->
+    </form>
+  </div>
+
+  <div>
+    <ul id = 'chart'>
+    </ul>
+  </div>
+  <footer id = 'footer' style = "position: absolute"> </footer>
+</div>
+
+<script>
+
+  var exists = ['AAPL', 'YHOO', 'GOOG', 'MSFT', 'AMZN', 'TWTR', 'FB', 'LNKD', 'TSLA', 'QCOM'];
+
+  $(function(){
+    $.get('static/data/symbols.csv', function(data){
+      exists = data.split(',');
+      console.log(exists);
+    });
+  });
+
+  // save existing lists to a local file to be done by tomorrow !
+
+  $(function(){
+    $('#inputSymbol').keypress(function(e){
+
+      var code= (e.keyCode ? e.keyCode : e.which);
+      if (code == 13) {
+
+        var symbol = document.getElementById('inputSymbol').value.toUpperCase();
+
+        if (exists.indexOf(symbol) >= 0) { draw(symbol);}
+
+        else {
+          showText('Retriving data ...');
+
+          $.ajax({
+            url: '/typeaheadSymbol',
+            data: $('form').serialize(),
+            type: 'POST',
+            success: function(response){
+              if (response.indexOf('ready') >=0 ) { 
+                exists.push(symbol);
+                draw(symbol);
+              }
+              else {showText(response);}
+            },
+            error: function(error){
+              showText(error);
+            }
+          });
+        }
+      }
+    });
+  });
+
+  function showText(s) {
+    var chart = d3.select('#chart');
+
+    chart.selectAll('li').remove();
+    chart.on('mousemove', function(){});
+
+    d3.select('footer').attr('display', 'none');
+
+    chart.append('li').append('svg')
+      .attr("width", 700)
+      .attr("height", 500)
+      .append("g")
+      .attr("transform", "translate(" + 350+ "," + 250 + ")")
+      .append("text")
+      .attr('class', 'lead')
+      .text(s)
+      .style("text-anchor", "middle");
+  }
+
+</script>
+
+</body>
+</html>
